@@ -8,52 +8,44 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	. "github.com/georgercarder/scaw/common"
 )
 
 
 const thisId = "123"
 
-type message struct {
-	msgId string // TODO
-	timeStamp uint32
-	author string // TODO struct
-	authorId string
-	content string
-}
-
-type conversation struct {
-	linesPrinted int
-	messages []*message
-}
+type tConversation Conversation
+type tMessage Message
 
 func NewTerminalSession() {
-	conv := new(conversation)
-	msg1 := &message{msgId: "123", timeStamp: 1, author: "george", content: "hello, how are you? This is an example start of a conversation."}
-	conv.messages = append(conv.messages, msg1)
-	msg2 := &message{msgId: "1234", timeStamp: 2, author: "bird", content: "Tweet tweet, I'm a dumb fucking bird. I'm here to chat lol."}
-	conv.messages = append(conv.messages, msg2)
-	msg3 := &message{msgId: "1235", timeStamp: 3, author: "george", content: "You bird, are a weird friggin bird. I don't know why I'm talking to a bird. This is soooo strange."}
-	conv.messages = append(conv.messages, msg3)
+	conv := new(tConversation)
+	msg1 := &Message{MsgId: "123", TimeStamp: 1, Author: "george", Content: "hello, how are you? This is an example start of a Conversation."}
+	conv.Messages = append(conv.Messages, msg1)
+	msg2 := &Message{MsgId: "1234", TimeStamp: 2, Author: "bird", Content: "Tweet tweet, I'm a dumb fucking bird. I'm here to chat lol."}
+	conv.Messages = append(conv.Messages, msg2)
+	msg3 := &Message{MsgId: "1235", TimeStamp: 3, Author: "george", Content: "You bird, are a weird friggin bird. I don't know why I'm talking to a bird. This is soooo strange."}
+	conv.Messages = append(conv.Messages, msg3)
 	conv.render()
 	// ^^ print prev convo
 	// loop here
-	newMessageCH := make(chan *message)
+	newMessageCH := make(chan *Message)
 	go captureUserInput(newMessageCH)
 	for {
 		select {
 		case m :=<-newMessageCH:
-			conv.messages = append(conv.messages, m)
+			conv.Messages = append(conv.Messages, m)
 			conv.render()
 		}
 	}
 }
 
-func captureUserInput(newMessageCH (chan *message)) {
+func captureUserInput(newMessageCH (chan *Message)) {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		text, _ := reader.ReadString('\n')
 		text = strings.Replace(text, "\n", "", -1)
-		newMessageCH <- &message{msgId: "TODO", timeStamp: 0, author: "george", content: text}
+		newMessageCH <- &Message{MsgId: "TODO", TimeStamp: 0, Author: "george", Content: text}
 		// TODO
 	}
 }
@@ -92,13 +84,14 @@ func clear(linesPrinted int) (w, h int) {
 	return
 }
 
-func (c *conversation) render() {
-	w, h := clear(c.linesPrinted)
+func (c *tConversation) render() {
+	w, h := clear(c.LinesPrinted)
 	lineSum := 0
 	idx := 0
 	// optimize for terminal height
-	for i:=len(c.messages)-1; i>-1; i-- {
-		lineSum = c.messages[i].length(w)
+	for i:=len(c.Messages)-1; i>-1; i-- {
+		msg := (*tMessage)(c.Messages[i])
+		lineSum = msg.length(w)
 		if lineSum > h {
 			idx = i
 			break
@@ -106,22 +99,23 @@ func (c *conversation) render() {
 	}
 	linesPrinted := 0
 	// print
-	for i:=idx; i< len(c.messages); i++ {
-		linesPrinted = c.messages[i].print(w, h)
+	for i:=idx; i< len(c.Messages); i++ {
+		msg := (*tMessage)(c.Messages[i])
+		linesPrinted = msg.print(w, h)
 	}
 	fmt.Print(" > ") // cursor
 	linesPrinted += 1 // cursor
-	c.linesPrinted = linesPrinted
+	c.LinesPrinted = linesPrinted
 }
 
-func (m *message) length(w int) (lineSum int) {
-	lineSum = len(m.content) / w
+func (m *tMessage) length(w int) (lineSum int) {
+	lineSum = len(m.Content) / w
 	return
 }
 
-func (m *message) print(w, h int) (linesPrinted int) {
-	fmt.Printf("-%s-\n  %s\n\n", m.author, m.content)
+func (m *tMessage) print(w, h int) (linesPrinted int) {
+	fmt.Printf("-%s-\n  %s\n\n", m.Author, m.Content)
 	linesPrinted = 1 // author line
-	linesPrinted += len(m.content) / w
+	linesPrinted += len(m.Content) / w
 	return
 }
