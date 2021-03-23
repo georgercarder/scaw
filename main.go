@@ -21,6 +21,7 @@ type message struct {
 }
 
 type conversation struct {
+	linesPrinted int
 	messages []*message
 }
 
@@ -78,25 +79,48 @@ func terminalSize() (w, h int, err error) {
 	return
 }
 
-func clear() (w, h int) {
+func clear(linesPrinted int) (w, h int) {
 	w, h, err := terminalSize()
 	if err != nil {
 		panic(err) // TODO log
 	}
-	for i:=0; i<h; i++ {
+	bound := h-linesPrinted
+	for i:=0; i<bound; i++ {
 		fmt.Println("\n")
 	}
 	return
 }
 
 func (c *conversation) render() {
-	w, h := clear()
-	for _, m := range c.messages {
-		m.print(w, h)
+	w, h := clear(c.linesPrinted)
+	lineSum := 0
+	idx := 0
+	// optimize for terminal height
+	for i:=len(c.messages)-1; i>-1; i-- {
+		lineSum = c.messages[i].length(w)
+		if lineSum > h {
+			idx = i
+			break
+		}
+	}
+	linesPrinted := 0
+	// print
+	for i:=idx; i< len(c.messages); i++ {
+		linesPrinted = c.messages[i].print(w, h)
 	}
 	fmt.Print(" > ") // cursor
+	linesPrinted += 1 // cursor
+	c.linesPrinted = linesPrinted
 }
 
-func (m *message) print(w, h int) {
+func (m *message) length(w int) (lineSum int) {
+	lineSum = len(m.content) / w
+	return
+}
+
+func (m *message) print(w, h int) (linesPrinted int) {
 	fmt.Printf("-%s-\n  %s\n\n", m.author, m.content)
+	linesPrinted = 1 // author line
+	linesPrinted += len(m.content) / w
+	return
 }
