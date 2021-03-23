@@ -79,8 +79,10 @@ func clear(linesPrinted int) (w, h int) {
 		panic(err) // TODO log
 	}
 	bound := h-linesPrinted
+	toPrint := ""
 	for i:=0; i<bound; i++ {
-		fmt.Println("\n")
+		toPrint = "\n"
 	}
+	fmt.Println(toPrint)
 	return
 }
