@@ -13,13 +13,14 @@ import (
 )
 
 
-const thisId = "123"
+const thisId = "123" // FIXME dummy for now
 
 type tConversation Conversation
 type tMessage Message
 
 func NewTerminalSession() {
 	conv := new(tConversation)
+	// FIXME DUMMY DEMO
 	msg1 := &Message{MsgId: "123", TimeStamp: 1, Author: "george", Content: "hello, how are you? This is an example start of a Conversation."}
 	conv.Messages = append(conv.Messages, msg1)
 	msg2 := &Message{MsgId: "1234", TimeStamp: 2, Author: "bird", Content: "Tweet tweet, I'm a dumb fucking bird. I'm here to chat lol."}
@@ -81,41 +82,5 @@ func clear(linesPrinted int) (w, h int) {
 	for i:=0; i<bound; i++ {
 		fmt.Println("\n")
 	}
-	return
-}
-
-func (c *tConversation) render() {
-	w, h := clear(c.LinesPrinted)
-	lineSum := 0
-	idx := 0
-	// optimize for terminal height
-	for i:=len(c.Messages)-1; i>-1; i-- {
-		msg := (*tMessage)(c.Messages[i])
-		lineSum = msg.length(w)
-		if lineSum > h {
-			idx = i
-			break
-		}
-	}
-	linesPrinted := 0
-	// print
-	for i:=idx; i< len(c.Messages); i++ {
-		msg := (*tMessage)(c.Messages[i])
-		linesPrinted = msg.print(w, h)
-	}
-	fmt.Print(" > ") // cursor
-	linesPrinted += 1 // cursor
-	c.LinesPrinted = linesPrinted
-}
-
-func (m *tMessage) length(w int) (lineSum int) {
-	lineSum = len(m.Content) / w
-	return
-}
-
-func (m *tMessage) print(w, h int) (linesPrinted int) {
-	fmt.Printf("-%s-\n  %s\n\n", m.Author, m.Content)
-	linesPrinted = 1 // author line
-	linesPrinted += len(m.Content) / w
 	return
 }
