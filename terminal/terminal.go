@@ -23,7 +23,7 @@ func NewTerminalSession() {
 	// FIXME DUMMY DEMO
 	msg1 := &Message{MsgId: "123", TimeStamp: 1, Author: "george", Content: "hello, how are you? This is an example start of a Conversation."}
 	conv.Messages = append(conv.Messages, msg1)
-	msg2 := &Message{MsgId: "1234", TimeStamp: 2, Author: "bird", Content: "Tweet tweet, I'm a dumb fucking bird. I'm here to chat lol."}
+	msg2 := &Message{MsgId: "1234", TimeStamp: 2, Author: "bird", Content: "Tweet tweet, I'm a dumb bird. I'm here to chat lol."}
 	conv.Messages = append(conv.Messages, msg2)
 	msg3 := &Message{MsgId: "1235", TimeStamp: 3, Author: "george", Content: "You bird, are a weird friggin bird. I don't know why I'm talking to a bird. This is soooo strange."}
 	conv.Messages = append(conv.Messages, msg3)
